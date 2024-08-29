@@ -26,10 +26,10 @@ const FormComponent = () => {
           },
         }
       );
-      setUploadedFileName(response.data.filename);
+      setUploadedFileName(response.data.uniqueFilename);
       setFormData({
         ...formData,
-        fileName: file.name,
+        fileName: response.data.uniqueFilename,
       });
       console.log('File uploaded successfully');
     } catch (error) {
@@ -247,6 +247,7 @@ const FormComponent = () => {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         uploadedFileName={uploadedFileName}
+        formData={formData}
       />
     </>
   );

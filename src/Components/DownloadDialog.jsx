@@ -1,16 +1,12 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
-const DownloadDialog = ({ isOpen, setIsOpen, uploadedFileName }) => {
+const DownloadDialog = ({ isOpen, setIsOpen, uploadedFileName, formData }) => {
   const closeModal = () => {
     setIsOpen(false);
+    window.location.reload();
   };
   const handleFileDownload = async () => {
-    if (!uploadedFileName) {
-      console.error('No file to download');
-      return;
-    }
-
     try {
       const response = await axios.get(
         `http://localhost:5000/api/download/${uploadedFileName}`,
@@ -22,20 +18,16 @@ const DownloadDialog = ({ isOpen, setIsOpen, uploadedFileName }) => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', uploadedFileName);
+      link.setAttribute(
+        'download',
+        `${uploadedFileName}.${formData.resultFormat}`
+      );
       document.body.appendChild(link);
       link.click();
       link.remove();
     } catch (error) {
       console.error('Error downloading file:', error);
     }
-  };
-  const handleDownload = () => {
-    // Add your download logic here
-    const link = document.createElement('a');
-    link.href = '/path-to-your-file'; // Replace with your file path
-    link.download = 'your-file-name.extension'; // Replace with your file name and extension
-    link.click();
   };
 
   return (
