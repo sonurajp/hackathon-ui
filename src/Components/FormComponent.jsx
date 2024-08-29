@@ -9,6 +9,7 @@ const FormComponent = () => {
   const [aggregation, setAggregation] = useState('');
   const [aggregationVisible, setAggregationVisible] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState('');
+  const [disableReportButton, setDisableReportButton] = useState(true);
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -65,17 +66,36 @@ const FormComponent = () => {
 
   const handleAggregationChange = (e) => {
     const value = e.target.value;
+
     setAggregation(value);
     setAggregationVisible(value !== 'None');
   };
 
   const handleInputChange = (e) => {
+    if (e.target.name === 'report') {
+      console.log(e.target.value);
+      if (e.target.value === '' || e.target.value === 'None') {
+        setDisableReportButton(true);
+      } else {
+        setDisableReportButton(false);
+      }
+    }
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
+  const aggrValue = () => {
+    if (!aggregation) {
+      return '';
+    } else if (!aggregation && !formData?.aggregationColumn) {
+      return '';
+    } else if (aggregation && !formData?.aggregationColumn) {
+      return aggregation;
+    } else {
+      return `${aggregation} ${formData?.aggregationColumn}`;
+    }
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     const jsonOutput = {
@@ -84,7 +104,7 @@ const FormComponent = () => {
       aggregation,
       aggregationColumn: formData.aggregationColumn,
       aggregationCondition: formData.aggregationCondition,
-      newColumn: `${aggregation} ${formData.aggregationColumn} `,
+      newColumn: aggrValue(),
       resultFormat: formData.resultFormat,
       report: formData.report,
     };
@@ -114,24 +134,6 @@ const FormComponent = () => {
           </select>
         </div>
 
-        {/* <div>
-        <label className='block text-sm font-medium text-gray-700 text-left'>
-          Upload File
-        </label>
-        <input
-          type='file'
-          name='fileName'
-          accept={fileFormat ? `.${fileFormat}` : '*'}
-          onChange={handleInputChange}
-          className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500'
-          disabled={!fileFormat}
-        />
-        {!fileFormat && (
-          <p className='text-red-500 text-sm mt-2'>
-            Please select a file format first.
-          </p>
-        )}
-      </div> */}
         <div>
           <label className='block text-sm font-medium text-gray-700 text-left'>
             Upload File
@@ -195,7 +197,9 @@ const FormComponent = () => {
               <input
                 type='text'
                 name='newColumn'
-                value={`${aggregation} ${formData.aggregationColumn}`}
+                value={`${aggregation} ${
+                  formData?.aggregationColumn ? formData?.aggregationColumn : ''
+                }`}
                 onChange={handleInputChange}
                 readOnly
                 className='mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100'
@@ -248,6 +252,7 @@ const FormComponent = () => {
         setIsOpen={setIsOpen}
         uploadedFileName={uploadedFileName}
         formData={formData}
+        disableReportButton={disableReportButton}
       />
     </>
   );

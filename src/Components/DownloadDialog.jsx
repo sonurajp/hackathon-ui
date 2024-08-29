@@ -1,27 +1,37 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
-const DownloadDialog = ({ isOpen, setIsOpen, uploadedFileName, formData }) => {
+const DownloadDialog = ({
+  isOpen,
+  setIsOpen,
+  uploadedFileName,
+  formData,
+  disableReportButton,
+}) => {
   const closeModal = () => {
     setIsOpen(false);
     window.location.reload();
   };
-  const handleFileDownload = async () => {
+  const handleFileDownload = async (type) => {
+    const apiUrl =
+      type === 'report'
+        ? `http://localhost:5000/api/reports/download/${uploadedFileName}`
+        : `http://localhost:5000/api/download/${uploadedFileName}`;
+    const extension = type === 'report' ? 'png' : formData.resultFormat;
+    const baseFileName = uploadedFileName.substring(
+      0,
+      uploadedFileName.lastIndexOf('.')
+    );
+
     try {
-      const response = await axios.get(
-        `http://localhost:5000/api/download/${uploadedFileName}`,
-        {
-          responseType: 'blob',
-        }
-      );
+      const response = await axios.get(apiUrl, {
+        responseType: 'blob',
+      });
 
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute(
-        'download',
-        `${uploadedFileName}.${formData.resultFormat}`
-      );
+      link.setAttribute('download', `${baseFileName}.${extension}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -45,12 +55,21 @@ const DownloadDialog = ({ isOpen, setIsOpen, uploadedFileName, formData }) => {
                 &times;
               </button>
             </div>
-            <div className='text-center'>
+            <div className='text-center mb-5'>
               <button
-                onClick={handleFileDownload}
+                onClick={() => handleFileDownload('download')}
                 className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
               >
                 Download
+              </button>
+            </div>
+            <div className='text-center'>
+              <button
+                disabled={disableReportButton}
+                onClick={() => handleFileDownload('report')}
+                className='bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600'
+              >
+                Report Download
               </button>
             </div>
           </div>
