@@ -50,7 +50,7 @@ const DownloadDialog = ({
               <h2 className='text-xl font-bold'>Download File</h2>
               <button
                 onClick={closeModal}
-                className='text-gray-500 hover:text-gray-700'
+                className='background-transparent text-gray-500 hover:text-gray-700 w-[9%]'
               >
                 &times;
               </button>
